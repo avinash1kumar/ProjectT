@@ -1,49 +1,80 @@
-const addBtn = document.getElementById("addNote");
+const addBtn = document.getElementById("addBtn");
 const container = document.getElementById("notesContainer");
+const toggleTheme = document.getElementById("toggleTheme");
 
 let notes = JSON.parse(localStorage.getItem("notes")) || [];
 
+/* SAVE NOTES */
+
 function saveNotes(){
-    localStorage.setItem("notes", JSON.stringify(notes));
+localStorage.setItem("notes", JSON.stringify(notes));
 }
 
-function renderNotes(){
-    container.innerHTML = "";
+/* DISPLAY NOTES */
 
-    notes.forEach((note, index) => {
+function showNotes(){
 
-        const noteDiv = document.createElement("div");
-        noteDiv.className = "note";
+container.innerHTML = "";
 
-        const textarea = document.createElement("textarea");
-        textarea.value = note;
+notes.forEach((note,index)=>{
 
-        textarea.addEventListener("input", () => {
-            notes[index] = textarea.value;
-            saveNotes();
-        });
+const div = document.createElement("div");
+div.className = "note";
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.innerText = "X";
-        deleteBtn.className = "delete-btn";
+const textarea = document.createElement("textarea");
+textarea.value = note;
 
-        deleteBtn.onclick = () => {
-            notes.splice(index,1);
-            saveNotes();
-            renderNotes();
-        };
-
-        noteDiv.appendChild(deleteBtn);
-        noteDiv.appendChild(textarea);
-
-        container.appendChild(noteDiv);
-    });
-}
-
-addBtn.addEventListener("click", () => {
-    notes.push("");
-    saveNotes();
-    renderNotes();
+textarea.addEventListener("input",()=>{
+notes[index] = textarea.value;
+saveNotes();
 });
 
-renderNotes();
+const del = document.createElement("button");
+del.textContent = "X";
+del.className = "delete";
+
+del.onclick = ()=>{
+notes.splice(index,1);
+saveNotes();
+showNotes();
+};
+
+div.appendChild(textarea);
+div.appendChild(del);
+
+container.appendChild(div);
+
+});
+
+}
+
+/* ADD NOTE */
+
+addBtn.onclick = ()=>{
+notes.push("");
+saveNotes();
+showNotes();
+};
+
+/* DARK MODE */
+
+if(localStorage.getItem("theme") === "dark"){
+document.body.classList.add("dark");
+toggleTheme.textContent = "Lite Mode";
+}
+
+toggleTheme.onclick = ()=>{
+
+document.body.classList.toggle("dark");
+
+if(document.body.classList.contains("dark")){
+localStorage.setItem("theme","dark");
+toggleTheme.textContent = "Lite Mode";
+}else{
+localStorage.setItem("theme","light");
+toggleTheme.textContent = "Dark Mode";
+}
+
+};
+
+showNotes();
