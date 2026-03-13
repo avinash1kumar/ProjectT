@@ -1,25 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Sticky Notes</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News API Demo</title>
+    <style>
+        .topic {
+            background-color: blue;
+            color: white;
+            padding: 8px;
+            border: 1px solid gray;
+            font-family: cursive;
+            font-weight: 500;
+            cursor: pointer;
+        }
+    </style>
 </head>
-
 <body>
+    
+    <button class="topic" data-topic="ai">Ai</button>
+    <button class="topic" data-topic="technology">Technology</button>
+    <button class="topic" data-topic="javascript">JavaScript</button>
+    <button class="topic" data-topic="programming">Programming</button>
+    <hr>
 
-<header>
-    <h1>Sticky Notes</h1>
-
-    <div>
-        <button id="toggleTheme">Dark Mode</button>
-        <button id="addBtn">Add Note</button>
-    </div>
-</header>
-
-<div id="notesContainer"></div>
-
-<script src="script.js"></script>
-
+    <div id="Data"></div>
 </body>
+
+<script>
+  const newsContainer = document.getElementById("Data");
+
+  async function fetchNews(topic) {
+    newsContainer.textContent = "Loading...";
+
+    const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(topic)}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      renderNews(data.hits);
+    } catch (err) {
+      console.error(err);
+      newsContainer.textContent = "Failed to load news. Please try again.";
+    }
+  }
+
+  function renderNews(articles) {
+    newsContainer.innerHTML = "";
+
+    if (!articles || articles.length === 0) {
+      newsContainer.textContent = "No articles found.";
+      return;
+    }
+
+    articles.forEach(article => {
+      const title = article.title || article.story_title || "Untitled";
+      const url = article.url || article.story_url;
+
+      if (!url) return;
+
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <h3>${title}</h3>
+        <a href="${url}" target="_blank" rel="noopener noreferrer">Read</a>
+        <hr>
+      `;
+      newsContainer.appendChild(div);
+    });
+  }
+
+  // Topic buttons
+  const topics = document.querySelectorAll(".topic");
+  topics.forEach(btn => {
+    btn.addEventListener("click", () => {
+      fetchNews(btn.dataset.topic);
+    });
+  });
+
+  fetchNews("technology");
+</script>
 </html>
